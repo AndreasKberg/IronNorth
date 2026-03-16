@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#090807" />
+  <meta name="description" content="Iron North — Forge yourself. Daily discipline, skill trees, and character development for young men." />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Iron North" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+
+  <!-- Preconnect for fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <title>Iron North</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* Inline splash so there's no flash of unstyled content */
+    #splash {
+      position: fixed; inset: 0;
+      background: #090807;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bebas Neue', Impact, sans-serif;
+      font-size: 52px; letter-spacing: 0.08em;
+      color: #2a2927;
+      z-index: 9998;
+      transition: opacity 0.4s ease;
+    }
+    #splash.hidden { opacity: 0; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <div id="splash">IRON NORTH</div>
+  <div id="app"></div>
+
+  <script src="app.js"></script>
+  <script>
+    // Remove splash once app is rendered
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const s = document.getElementById('splash');
+        if (s) { s.classList.add('hidden'); setTimeout(() => s.remove(), 400); }
+      }, 300);
+    });
+  </script>
+</body>
+</html>
