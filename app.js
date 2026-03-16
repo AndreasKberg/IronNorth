@@ -388,7 +388,7 @@ async function getAICoachMessage(forceRefresh = false) {
   const fallback = getStaticCoachMessage();
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/ai', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -416,7 +416,7 @@ async function generateAITasks() {
   if (el) el.innerHTML = `<div class="coach" style="margin:7px 0 0"><div class="coach-lbl">AI Coach</div><div class="coach-loading"><div class="coach-dot"></div><div class="coach-dot"></div><div class="coach-dot"></div></div></div>`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/ai', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -812,10 +812,7 @@ function renderProfile() {
         Export My Data
         <svg class="menu-chevron" viewBox="0 0 16 16"><path d="M8 3v8M4 7l4 4 4-4"/></svg>
       </button>
-      <button class="menu-item" onclick="showAPIKey()">
-        AI Coach API Key
-        <svg class="menu-chevron" viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></svg>
-      </button>
+
       <button class="menu-item danger" onclick="confirmReset()">
         Reset All Progress
       </button>
@@ -863,27 +860,7 @@ function saveEditProfile() {
   showToast('Profile updated', '✓');
 }
 
-function showAPIKey() {
-  openSheet(`
-    <div class="sheet-title">AI Coach Setup</div>
-    <p style="font-size:14px;color:var(--text-2);line-height:1.65;margin-bottom:16px">
-      The AI Coach uses Claude. To activate it, add your Anthropic API key below. Your key is stored locally on your device only.
-    </p>
-    <div style="margin-bottom:10px;font-family:var(--ff-ui);font-size:12px;color:var(--text-3);letter-spacing:0.08em;text-transform:uppercase">API Key</div>
-    <input type="password" id="api-key-input" value="${localStorage.getItem('in_apikey') || ''}"
-      placeholder="sk-ant-..."
-      style="width:100%;padding:14px;background:var(--bg-raised);border:1px solid var(--line-2);border-radius:var(--r-md);color:var(--text-1);font-family:var(--ff-ui);font-size:14px;outline:none;margin-bottom:16px;-webkit-appearance:none"
-    />
-    <p style="font-size:12px;color:var(--text-3);line-height:1.6;margin-bottom:16px">Get your key at anthropic.com/claude. Without a key, the coach uses built-in messages.</p>
-    <button class="btn-primary" onclick="saveAPIKey()">Save Key</button>
-  `);
-}
 
-function saveAPIKey() {
-  const key = document.getElementById('api-key-input')?.value?.trim();
-  if (key) { localStorage.setItem('in_apikey', key); showToast('API key saved', '✓'); }
-  closeSheet();
-}
 
 function exportData() {
   const blob = new Blob([JSON.stringify(S, null, 2)], { type:'application/json' });
@@ -906,7 +883,6 @@ function confirmReset() {
 
 function resetApp() {
   localStorage.removeItem('in_v2');
-  localStorage.removeItem('in_apikey');
   location.reload();
 }
 
@@ -1096,18 +1072,7 @@ function buildApp() {
   `;
 }
 
-// ─── API KEY INJECTION ────────────────────────────────────
-// Intercept fetch to inject stored API key automatically
-const _origFetch = window.fetch;
-window.fetch = function(url, opts = {}) {
-  if (typeof url === 'string' && url.includes('anthropic.com')) {
-    const key = localStorage.getItem('in_apikey');
-    if (key) {
-      opts.headers = { ...(opts.headers || {}), 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' };
-    }
-  }
-  return _origFetch(url, opts);
-};
+// ─── API KEY INJECTION ─── handled server-side via /api/ai proxy
 
 // ─── INIT ─────────────────────────────────────────────────
 
